@@ -36,7 +36,7 @@ class Major(models.IntegerChoices):
     FREE_MAJOR = 27, "AI자유전공학부"
 
 
-class StudentBase(models.Model):
+class Student(models.Model):
     student_id = models.CharField(max_length=8, unique=True, primary_key=True);
     name = models.CharField(max_length=100)
     gender = models.IntegerField(choices=Gender.choices)
