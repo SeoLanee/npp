@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 class Gender(models.IntegerChoices):
     MALE = 0, "Male"
@@ -35,9 +35,70 @@ class Major(models.IntegerChoices):
     SYSTEM_SEMICONDUCTOR_ENGINEERING = 26, "시스템반도체공학과"
     FREE_MAJOR = 27, "AI자유전공학부"
 
+class StudentManager(BaseUserManager):
+    def create_senior(
+            self, 
+            student_id,
+            password,
+            name,
+            gender,
+            major,
+            email,
+            kakao_id=None,
+            insta_id=None,
+            message=None
+        ):
+        
+        student = self.model(
+            student_id=student_id,
+            name=name,
+            gender=gender,
+            major=major,
+            email=email,
+            kakao_id=kakao_id,
+            insta_id=insta_id,
+            message=message,
+            senior=True,
+            is_active=False
+        )
+        student.set_password(password),
+        student.save(using=self._db)
+        return student
 
-class Student(models.Model):
+    def create_junior(
+            self, 
+            student_id, 
+            password,
+            name, 
+            gender, 
+            major, 
+            email, 
+            kakao_id=None, 
+            insta_id=None, 
+            message=None
+        ):
+
+        student = self.model(
+            student_id=student_id,
+            password=password,
+            name=name,
+            gender=gender,
+            major=major,
+            email=email,
+            kakao_id=kakao_id,
+            insta_id=insta_id,
+            message=message,
+            senior=False,  
+            is_active=False  
+        )
+        student.set_password(password),
+        student.save(using=self._db)
+        return student
+
+
+class Student(AbstractBaseUser):
     student_id = models.CharField(max_length=8, unique=True, primary_key=True);
+    password = models.CharField(max_length=128)
     name = models.CharField(max_length=100)
     gender = models.IntegerField(choices=Gender.choices)
     major = models.IntegerField(choices=Major.choices);
@@ -47,3 +108,5 @@ class Student(models.Model):
     message = models.CharField(max_length=500, blank=True, null=True)
     senior = models.BooleanField(null=True)
     is_active = models.BooleanField(default=False)
+
+    objects = StudentManager
