@@ -1,8 +1,9 @@
-from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view
+
 
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import HttpRequest, HttpResponseForbidden
@@ -13,6 +14,7 @@ class user_view(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @api_view(['GET'])
     def get(self, request: HttpRequest):
         user = request.user
         seniors = Student.objects.filter(
@@ -28,6 +30,7 @@ class user_detail_view(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @api_view(['GET'])
     def get(self, request: HttpRequest, student_id: int):
         if request.user.senior == True :
             return HttpResponseForbidden
@@ -47,14 +50,17 @@ class my_profile_view(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @api_view(['GET'])
     def get(self, request: HttpRequest):
         serializer = get_user_detail_serializer(request.user)
         return Response(serializer.data)
 
+    @api_view(['PUT'])
     def put(self, request: HttpRequest):
         serializer = get_user_detail_serializer(request.data)
         return Response(serializer.data)
 
+    @api_view(['DELETE'])
     def delete(self, request: HttpRequest):
         student = get_object_or_404(Student, id=request)
         serializer = get_user_detail_serializer(student)
