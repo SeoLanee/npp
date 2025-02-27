@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 class Gender(models.IntegerChoices):
     MALE = 0, "Male"
@@ -36,7 +36,7 @@ class Major(models.IntegerChoices):
     FREE_MAJOR = 27, "AI자유전공학부"
 
 class StudentManager(BaseUserManager):
-    def create_senior(
+    def create_user(
             self, 
             student_id,
             password,
@@ -44,9 +44,11 @@ class StudentManager(BaseUserManager):
             gender,
             major,
             email,
+            senior,
             kakao_id=None,
             insta_id=None,
-            message=None
+            message=None,
+            **extra_fields
         ):
         
         student = self.model(
@@ -58,47 +60,31 @@ class StudentManager(BaseUserManager):
             kakao_id=kakao_id,
             insta_id=insta_id,
             message=message,
-            senior=True,
-            is_active=False
+            senior=senior,
+            **extra_fields
         )
         student.set_password(password),
         student.save(using=self._db)
         return student
-
-    def create_junior(
-            self, 
-            student_id, 
-            password,
-            name, 
-            gender, 
-            major, 
-            email, 
-            kakao_id=None, 
-            insta_id=None, 
-            message=None
-        ):
-
-        student = self.model(
-            student_id=student_id,
-            password=password,
+    
+    def create_superuser(self, name, gender, major, email, senior, password, **extra_fields):
+        return self.create_user(
             name=name,
             gender=gender,
             major=major,
             email=email,
-            kakao_id=kakao_id,
-            insta_id=insta_id,
-            message=message,
-            senior=False,  
-            is_active=False  
+            senior=senior,
+            password=password,
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+            **extra_fields,
         )
-        student.set_password(password),
-        student.save(using=self._db)
-        return student
 
 
-class Student(AbstractBaseUser):
+
+class Student(AbstractBaseUser, PermissionsMixin):
     student_id = models.CharField(max_length=8, unique=True, primary_key=True);
-    password = models.CharField(max_length=128)
     name = models.CharField(max_length=100)
     gender = models.IntegerField(choices=Gender.choices)
     major = models.IntegerField(choices=Major.choices);
@@ -107,6 +93,12 @@ class Student(AbstractBaseUser):
     insta_id = models.CharField(max_length=32, unique=True, blank=True, null=True)
     message = models.CharField(max_length=500, blank=True, null=True)
     senior = models.BooleanField(null=True)
-    is_active = models.BooleanField(default=False)
+    
+    is_active = models.BooleanField(default=False)  
+    is_staff = models.BooleanField(default=False)  
+    is_superuser = models.BooleanField(default=False)
 
-    objects = StudentManager
+    objects = StudentManager()
+
+    USERNAME_FIELD = 'student_id'
+    REQUIRED_FIELDS = ['name', 'gender', 'major', 'email', 'senior']
