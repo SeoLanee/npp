@@ -1,3 +1,5 @@
+import re
+
 from rest_framework import serializers
 from students.models import Student
 
@@ -16,7 +18,10 @@ class signup_serializer(serializers.ModelSerializer):
                 {"Student ID": "Invalid Student ID"}
             )
         
-
+        if not (re.search('[a-zA-z]', data['password']) and re.search('[0-9]', data['password']) and 8 <= len(data['password']) <= 20):
+            raise serializers.ValidationError(
+                {"password": "Invalid password format"}
+            )
 
         if data['password'] != data['password2']:
             raise serializers.ValidationError(
@@ -28,7 +33,7 @@ class signup_serializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
 
-        if ((validated_data['student_id'] / 10000) % 100) < 25:
+        if ((validated_data['student_id'] / 10000) % 100) != 25:
             senior=True
         else:
             senior=False
@@ -44,27 +49,3 @@ class signup_serializer(serializers.ModelSerializer):
         )
         return student
 
-
-class login_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
-        field = ['student_id', 'password']
-
-    def validate(self, data):
-        try:
-            student = Student.objects.get(student_id=data['student_id'])
-        except Student.DoesNotExist:
-            raise serializers.ValidationError(
-                {"Student ID": "Student does not exist"}
-            )
-        
-        if not student.check_password(data['password']):
-            raise serializers.ValidationError(
-                {"Password": "Wrong Password"}
-            )
-        
-        return data
-
-
-class logout_serializer(serializers.ModelSerializer):
-    pass
