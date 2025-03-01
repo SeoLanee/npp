@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import AccessToken
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest, HttpResponseForbidden
@@ -12,24 +13,34 @@ class user_view(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({"message":"good"})
+        response = JWTAuthentication().authenticate(request);
+        _, token = response
+
+        if token['senior']:
+            return Response({"error": "senior is not available"}, status=403)
+
+        seniors = Student.objects.filter(display=True, major=token['major'], senior=True)
+        serializer = get_user_list_serializer(seniors, many=True)
+
+        return Response(data=serializer.data, status=200)
 
 
 class user_detail_view(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: HttpRequest, student_id: int):
-        if request.user.senior == True :
-            return HttpResponseForbidden
-        
-        student = get_object_or_404(
-            Student, 
-            id=student_id, 
-            is_active=True, 
-            senior=True
-        )
+        response = JWTAuthentication().authenticate(request);
+        _, token = response
 
-        serializer = get_user_detail_serializer(student)
+        if token['senior']:
+            return Response({"error": "senior is not available"}, status=403)
+
+        senior = get_object_or_404(Student, student_id=student_id)
+        if token['major'] != senior.major:
+            return Response({"error": "senior in other major"}, status=403)      
+        
+        serializer = get_user_detail_serializer(senior)
+
         return Response(serializer.data)
 
 
