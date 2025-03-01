@@ -84,7 +84,8 @@ class Student(AbstractBaseUser, PermissionsMixin):
     kakao_id = models.CharField(max_length=32, unique=True, blank=True, null=True)
     insta_id = models.CharField(max_length=32, unique=True, blank=True, null=True)
     message = models.CharField(max_length=500, blank=True, null=True)
-    senior = models.BooleanField(null=True)
+    senior = models.BooleanField(null=False)
+    display = models.BooleanField(default=True)
     
     is_active = models.BooleanField(default=True)  
     is_staff = models.BooleanField(default=False)  
