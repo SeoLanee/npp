@@ -4,6 +4,11 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 
 from .serializers import *
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+class CustomTokenObtainpairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
 
 class signup_view(APIView):
 

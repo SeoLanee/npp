@@ -1,7 +1,18 @@
 import re
+from students.models import Student
 
 from rest_framework import serializers
-from students.models import Student
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['student_id'] = user.student_id
+        token['senior'] = user.senior
+        token['major'] = user.major
+        return token
 
 
 class signup_serializer(serializers.ModelSerializer):
