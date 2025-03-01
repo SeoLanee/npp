@@ -2,10 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import AccessToken
 
 from django.shortcuts import get_object_or_404
-from django.http import HttpRequest, HttpResponseForbidden
+from django.http import HttpRequest
 from .models import Student
 from .serializers import *
 
@@ -13,8 +12,8 @@ class user_view(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        response = JWTAuthentication().authenticate(request);
-        _, token = response
+        decoded = JWTAuthentication().authenticate(request);
+        _, token = decoded
 
         if token['senior']:
             return Response({"error": "senior is not available"}, status=403)
@@ -29,8 +28,8 @@ class user_detail_view(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: HttpRequest, student_id: int):
-        response = JWTAuthentication().authenticate(request);
-        _, token = response
+        decoded = JWTAuthentication().authenticate(request);
+        _, token = decoded
 
         if token['senior']:
             return Response({"error": "senior is not available"}, status=403)
@@ -48,14 +47,33 @@ class my_profile_view(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: HttpRequest):
-        serializer = get_user_detail_serializer(request.user)
-        return Response(serializer.data)
+        decoded = JWTAuthentication().authenticate(request);
+        student_id, _ = decoded
+
+        student = get_object_or_404(Student, student_id=student_id)
+        serializer= get_user_serializer(data=student)
+
+        return Response(serializer.data, status=200)
+
 
     def put(self, request: HttpRequest):
-        serializer = get_user_detail_serializer(request.data)
-        return Response(serializer.data)
+        decoded = JWTAuthentication().authenticate(request);
+        student_id, _ = decoded
+
+        serializer = update_user_serializer(data=request.data, partial=True)
+        if serializer.is_valid():
+            student = serializer.update(validated_data=serializer.validated_data, student_id=student_id)
+            return Response(student, status=200)
+
+        return Response({"error": serializer.errors}, status=400)
+
 
     def delete(self, request: HttpRequest):
-        student = get_object_or_404(Student, id=request)
-        serializer = get_user_detail_serializer(student)
-        return Response(serializer.data)
+        decoded = JWTAuthentication().authenticate(request);
+        student_id, _ = decoded
+
+        student = get_object_or_404(Student, student_id=student_id)
+        
+        student.delete()
+
+        return Response({"message": "The student removed successfully"}, status=200)
