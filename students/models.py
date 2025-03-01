@@ -51,6 +51,9 @@ class StudentManager(BaseUserManager):
             **extra_fields
         ):
         
+        if not password:
+            raise ValueError("Password is required")
+
         student = self.model(
             student_id=student_id,
             name=name,
@@ -63,7 +66,7 @@ class StudentManager(BaseUserManager):
             senior=senior,
             **extra_fields
         )
-        student.set_password(password),
+        student.set_password(password)
         student.save(using=self._db)
         return student
     
@@ -85,7 +88,7 @@ class StudentManager(BaseUserManager):
 
 class Student(AbstractBaseUser, PermissionsMixin):
     student_id = models.CharField(max_length=8, unique=True, primary_key=True);
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=32)
     gender = models.IntegerField(choices=Gender.choices)
     major = models.IntegerField(choices=Major.choices);
     email = models.EmailField(unique=True)
@@ -94,7 +97,7 @@ class Student(AbstractBaseUser, PermissionsMixin):
     message = models.CharField(max_length=500, blank=True, null=True)
     senior = models.BooleanField(null=True)
     
-    is_active = models.BooleanField(default=False)  
+    is_active = models.BooleanField(default=True)  
     is_staff = models.BooleanField(default=False)  
     is_superuser = models.BooleanField(default=False)
 
