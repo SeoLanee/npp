@@ -94,4 +94,4 @@ class Student(AbstractBaseUser, PermissionsMixin):
     objects = StudentManager()
 
     USERNAME_FIELD = 'student_id'
-    REQUIRED_FIELDS = ['name', 'gender', 'major', 'email', 'senior']
+    REQUIRED_FIELDS = ['name', 'gender', 'major', 'email', 'senior', 'display']

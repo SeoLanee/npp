@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpRequest
@@ -11,6 +13,9 @@ from .serializers import *
 class user_view(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        responses={200:get_user_list_serializer}
+    )
     def get(self, request):
         decoded = JWTAuthentication().authenticate(request);
         _, token = decoded
@@ -27,6 +32,16 @@ class user_view(APIView):
 class user_detail_view(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        manual_parameters=[
+                openapi.Parameter(
+                    name='student_id',  
+                    in_=openapi.IN_PATH,  
+                    type=openapi.TYPE_INTEGER  
+                )
+            ],
+        responses={200:get_user_detail_serializer}
+    )
     def get(self, request: HttpRequest, student_id: int):
         decoded = JWTAuthentication().authenticate(request);
         _, token = decoded
@@ -46,6 +61,9 @@ class user_detail_view(APIView):
 class my_profile_view(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        responses={200: get_user_serializer}
+    )
     def get(self, request: HttpRequest):
         decoded = JWTAuthentication().authenticate(request);
         student_id, _ = decoded
@@ -55,7 +73,10 @@ class my_profile_view(APIView):
 
         return Response(serializer.data, status=200)
 
-
+    @swagger_auto_schema(
+        request_body=update_user_serializer,
+        responses={200: update_user_response_serializer}
+    )
     def put(self, request: HttpRequest):
         decoded = JWTAuthentication().authenticate(request);
         student_id, _ = decoded
@@ -67,7 +88,9 @@ class my_profile_view(APIView):
 
         return Response({"error": serializer.errors}, status=400)
 
-
+    @swagger_auto_schema(
+        responses={200: "string"}
+    )
     def delete(self, request: HttpRequest):
         decoded = JWTAuthentication().authenticate(request);
         student_id, _ = decoded

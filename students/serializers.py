@@ -26,7 +26,8 @@ class update_user_serializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ['name', 'email', 'kakao_id', 'insta_id', 'message', 'display'] 
-
+        extra_kwargs = {field: {'required': False} for field in fields}
+    
     def validate(self, data):
         def validate_kakao_id(kakao_id: str) -> bool:
             return bool(re.fullmatch(r'^[a-z0-9_.]{4,15}$', kakao_id))
@@ -34,7 +35,7 @@ class update_user_serializer(serializers.ModelSerializer):
         def validate_insta_id(insta_id: str) -> bool:
             return bool(re.fullmatch(r'^[a-zA-Z0-9_.]{1,30}$', insta_id))
 
-        def validate_message(message: str)->str:
+        def validate_message(message: str) -> str:
             return bleach.clean(message)
 
         kakao_id = data.get('kakao_id')
@@ -79,3 +80,9 @@ class update_user_serializer(serializers.ModelSerializer):
                 "senior": student.senior,
                 "display": student.display,
             }
+    
+
+class update_user_response_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=Student
+        fields=["student_id", "name", "gender", "major", "email", "kakao_id", "insta_id", "message", "senior", "display"]
