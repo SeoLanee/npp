@@ -69,7 +69,7 @@ class my_profile_view(APIView):
         student_id, _ = decoded
 
         student = get_object_or_404(Student, student_id=student_id)
-        serializer= get_user_serializer(data=student)
+        serializer= get_user_serializer(student)
 
         return Response(serializer.data, status=200)
 
