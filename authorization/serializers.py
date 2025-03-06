@@ -1,9 +1,11 @@
 import re
+from .utils import generate_key
+from .models import Email
 from students.models import Student
 
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -69,3 +71,58 @@ class signup_response_serializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ['student_id', 'email', 'name', 'gender', 'major', 'senior']
+
+
+class email_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=Email
+        fields=['email']
+        extra_kwargs = {
+            'email': {'validators': []}  # 자동 중복 검사 제거
+        }
+
+    def validate(self, data):
+        return data
+
+    def create(self, data):
+        return Email.objects.create(
+            email=data['email'],
+            validated=False,
+            key=generate_key()
+        )
+    
+    def update(self, data):
+        email = get_object_or_404(Email, email=data['email'])
+        email.key = generate_key()
+        email.save(update_fields=['key'])
+        return email
+
+
+class email_validation_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Email
+        fields = ['email', 'key']
+        extra_kwargs = {
+            'email': {'validators': []}  # 자동 중복 검사 제거
+        }
+
+    def validate(self, data):
+        try:
+            email = Email.objects.get(email=data['email'])
+        except Email.DoesNotExist:
+            raise serializers.ValidationError(
+                detail={"email": "Given email does not exists"},
+                code=400
+            )   
+        if not email.key == data['key']:
+            raise serializers.ValidationError(
+                detail={"key": "Given key does not match"},
+                code=401
+            )
+        return data
+    
+    def update(self, validated_data):
+        email = Email.objects.get(email=validated_data['email'])
+        email.validated = True
+        email.save(update_fields=['validated'])
+        return email

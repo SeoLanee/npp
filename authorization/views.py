@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 
+from .utils import send_email
 from .serializers import *
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -11,7 +12,6 @@ class CustomTokenObtainpairView(TokenObtainPairView):
 
 
 class signup_view(APIView):
-
     @swagger_auto_schema(
             request_body=signup_serializer,
             responses={201: signup_response_serializer}
@@ -30,4 +30,44 @@ class signup_view(APIView):
             }
             return Response(response_data, status=201)
 
+        return Response(serializer.errors, status=400)
+
+
+class email_view(APIView):
+    @swagger_auto_schema(
+            request_body=email_serializer,
+            responses={201: {'message': 'Created'}}
+    )
+    def post(self, request: HttpRequest):
+        serializer = email_serializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            email = serializer.save()
+            send_email(email.email, email.key)
+            return Response({'message': 'Created'}, status=201)
+        return Response(serializer.errors)
+    
+    @swagger_auto_schema(
+            request_body=email_serializer,
+            responses={200: {'message': 'Resend succeed'}}
+    )
+    def put(self, request: HttpRequest):
+        serializer = email_serializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            email = serializer.update(serializer.validated_data)
+            send_email(email.email, email.key)
+            return Response({'message': 'Resend succeed'}, status=200)
+        return Response(serializer.errors)
+
+
+class email_validation_view(APIView):
+    @swagger_auto_schema(
+            request_body=email_validation_serializer,
+            responses={200: {'message': 'Validation succeed'}}
+    )
+    def post(self, request: HttpRequest):
+        serializer = email_validation_serializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.update(serializer.validated_data)
+            return Response({'message': 'Validation succeed'}, status=200)
+        
         return Response(serializer.errors, status=400)
