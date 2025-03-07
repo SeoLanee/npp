@@ -36,7 +36,7 @@ class signup_view(APIView):
 class email_view(APIView):
     @swagger_auto_schema(
             request_body=email_serializer,
-            responses={201: {'message': 'Created'}}
+            responses={201: 'Created'}
     )
     def post(self, request: HttpRequest):
         serializer = email_serializer(data=request.data, context={'request': request})
@@ -48,7 +48,7 @@ class email_view(APIView):
     
     @swagger_auto_schema(
             request_body=email_serializer,
-            responses={200: {'message': 'Resend succeed'}}
+            responses={200: 'Resend succeed'}
     )
     def put(self, request: HttpRequest):
         serializer = email_serializer(data=request.data, context={'request': request})
@@ -62,7 +62,7 @@ class email_view(APIView):
 class email_validation_view(APIView):
     @swagger_auto_schema(
             request_body=email_validation_serializer,
-            responses={200: {'message': 'Validation succeed'}}
+            responses={200: 'Validation succeed'}
     )
     def post(self, request: HttpRequest):
         serializer = email_validation_serializer(data=request.data, context={'request': request})
