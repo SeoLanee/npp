@@ -1,6 +1,6 @@
 import re
 from .utils import generate_key
-from .models import Email
+from .models import Email, WhitelistEmailValidator
 from students.models import Student
 
 from django.shortcuts import get_object_or_404
@@ -78,7 +78,7 @@ class email_serializer(serializers.ModelSerializer):
         model=Email
         fields=['email']
         extra_kwargs = {
-            'email': {'validators': []}  # 자동 중복 검사 제거
+            'email': {'validators': [WhitelistEmailValidator(allowlist=['sogang.ac.kr'])]}
         }
 
     def validate(self, data):

@@ -12,6 +12,11 @@ class WhitelistEmailValidator(EmailValidator):
         self.allowlist = allowlist
         super().__init__(*args, **kwargs)
 
+    def validate_domain_part(self, domain_part):
+        if domain_part != 'sogang.ac.kr':
+            return False
+        return True
+
     def __eq__(self, other):
         return isinstance(other, WhitelistEmailValidator) and super().__eq__(other)
 
