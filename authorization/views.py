@@ -44,7 +44,7 @@ class email_view(APIView):
             email = serializer.save()
             send_email(email.email, email.key)
             return Response({'message': 'Created'}, status=201)
-        return Response(serializer.errors)
+        return Response(serializer.errors, status=400)
     
     @swagger_auto_schema(
             request_body=email_serializer,
@@ -56,7 +56,7 @@ class email_view(APIView):
             email = serializer.update(serializer.validated_data)
             send_email(email.email, email.key)
             return Response({'message': 'Resend succeed'}, status=200)
-        return Response(serializer.errors)
+        return Response(serializer.errors, status=400)
 
 
 class email_validation_view(APIView):
