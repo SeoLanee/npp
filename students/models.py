@@ -1,4 +1,5 @@
 from django.db import models
+from authorization.models import Email
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 class Gender(models.IntegerChoices):
@@ -74,16 +75,15 @@ class StudentManager(BaseUserManager):
         )
 
 
-
 class Student(AbstractBaseUser, PermissionsMixin):
     student_id = models.CharField(max_length=8, unique=True, primary_key=True);
     name = models.CharField(max_length=32)
     gender = models.IntegerField(choices=Gender.choices)
     major = models.IntegerField(choices=Major.choices);
-    email = models.EmailField(unique=True)
+    email = models.OneToOneField(Email, on_delete=models.CASCADE)
     kakao_id = models.CharField(max_length=32, unique=True, blank=True, null=True)
     insta_id = models.CharField(max_length=32, unique=True, blank=True, null=True)
-    message = models.CharField(max_length=500, blank=True, null=True)
+    message = models.CharField(max_length=200, blank=True, null=True)
     senior = models.BooleanField(null=False)
     display = models.BooleanField(default=True)
     

@@ -47,6 +47,11 @@ class signup_serializer(serializers.ModelSerializer):
                 {"password": "Password fields didn't match"}
             )
         
+        if not data['email'].validated:
+            raise serializers.ValidationError(
+                {"email": "The email isn't valid"}
+            )
+    
         return data
 
     def create(self, validated_data):
@@ -54,7 +59,7 @@ class signup_serializer(serializers.ModelSerializer):
 
         student_id = int(validated_data['student_id'])
         senior = ((student_id // 10000) % 100) != 25
-    
+
         student = Student.objects.create_user(
             student_id=validated_data['student_id'],
             password=validated_data['password'],

@@ -22,7 +22,7 @@ class signup_view(APIView):
             student = serializer.save()
             response_data = {
                 "student_id": student.student_id,
-                "email": student.email,
+                "email": student.email.email,
                 "name": student.name,
                 "gender": student.gender,
                 "major": student.major,
