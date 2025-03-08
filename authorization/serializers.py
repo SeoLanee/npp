@@ -82,14 +82,15 @@ class email_serializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        if Email.objects.get(email=data['email']):
+        return data
+
+    def create(self, data):
+        if Email.objects.filter(email=data['email']).exists():
             raise serializers.ValidationError(
                 {'email': 'given email already exists'},
                 code=400
             )
-        return data
 
-    def create(self, data):
         return Email.objects.create(
             email=data['email'],
             validated=False,
