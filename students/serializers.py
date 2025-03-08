@@ -13,7 +13,7 @@ class get_user_list_serializer(serializers.ModelSerializer):
 class get_user_detail_serializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['student_id', 'name', 'gender', 'major', 'email', 'kakao_id', 'insta_id', 'message', 'senior']
+        fields = ['student_id', 'name', 'gender', 'major', 'kakao_id', 'insta_id', 'message', 'senior']
 
 
 class get_user_serializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class get_user_serializer(serializers.ModelSerializer):
 class update_user_serializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['name', 'email', 'kakao_id', 'insta_id', 'message', 'display'] 
+        fields = ['name', 'kakao_id', 'insta_id', 'message', 'display'] 
         extra_kwargs = {field: {'required': False, 'validators': []} for field in fields}
 
 
@@ -63,7 +63,7 @@ class update_user_serializer(serializers.ModelSerializer):
         except Student.DoesNotExist:
             raise serializers.ValidationError({"error": "Student not found"})  
             
-        for field in ['name', 'email', 'kakao_id', 'insta_id', 'message', 'display']:
+        for field in ['name', 'kakao_id', 'insta_id', 'message', 'display']:
             if field in validated_data:
                 setattr(student, field, validated_data[field])  
                 
