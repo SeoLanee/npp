@@ -13,7 +13,7 @@ class get_user_list_serializer(serializers.ModelSerializer):
 class get_user_detail_serializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['student_id', 'name', 'gender', 'major', 'kakao_id', 'insta_id', 'message', 'senior']
+        fields = ['student_id', 'name', 'email', 'gender', 'major', 'kakao_id', 'insta_id', 'message', 'senior']
 
 
 class get_user_serializer(serializers.ModelSerializer):
