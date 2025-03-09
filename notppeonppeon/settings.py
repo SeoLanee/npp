@@ -22,15 +22,24 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+DEVELOPMENT = os.environ.get('DEVELOPMENT', 'false').lower() == 'true'
+DOMAIN = os.environ.get('DOMAIN', '127.0.0.1')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+if not DEVELOPMENT:
+    ALLOWED_HOSTS.append(DOMAIN)
 
-ALLOWED_HOSTS = []
-
-# Application definition
+CORS_ALLOW_CREDENTIALS = True
+if DEVELOPMENT:
+    DEBUG = True
+    ALLOWED_HOSTS = ['*']
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    DEBUG = False
+    CORS_ALLOWED_ORIGINS = [
+        f"http://{DOMAIN}",
+        f"https://{DOMAIN}",
+    ]
 
 AUTH_USER_MODEL = 'students.Student'
 
@@ -60,9 +69,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
