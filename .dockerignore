@@ -1,0 +1,8 @@
+**/__pycache__/
+**/migrations/
+.venv
+.env
+dockerfile
+db.sqlite3
+.git
+.gitignore
