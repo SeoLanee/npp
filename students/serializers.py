@@ -42,15 +42,25 @@ class update_user_serializer(serializers.ModelSerializer):
         kakao_id = data.get('kakao_id')
         insta_id = data.get('insta_id')
 
-        if kakao_id and not validate_kakao_id(kakao_id):
-            raise serializers.ValidationError(
-                {"password": "Invalid kakaotalk ID format"}
-            )
+        if kakao_id:
+            if Student.objects.filter(kakao_id=kakao_id).exists():
+                raise serializers.ValidationError(
+                    {"kakao_id": "The kakao ID already exists"}
+                )
+            if not validate_kakao_id(kakao_id):
+                raise serializers.ValidationError(
+                    {"kakao_id": "Invalid kakaotalk ID format"}
+                )
         
-        if insta_id and not validate_insta_id(insta_id):
-            raise serializers.ValidationError(
-                {"password": "Invalid instagram ID format"}
-            )
+        if insta_id:
+            if Student.objects.filter(insta_id=insta_id).exists():
+                raise serializers.ValidationError(
+                    {"insta_id": "The instagram ID already exists"}
+                )
+            if not validate_insta_id(insta_id):
+                raise serializers.ValidationError(
+                    {"insta_id": "Invalid instagram ID format"}
+                )
         
         if data.get('message'):
             data['message'] = validate_message(data['message'])

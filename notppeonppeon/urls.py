@@ -32,9 +32,9 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('student/', include('students.urls')),
-    path('auth/', include('authorization.urls')),
+    path('api/admin/', admin.site.urls),
+    path('api/student/', include('students.urls')),
+    path('api/auth/', include('authorization.urls')),
 ]
 
 if settings.DEBUG:
