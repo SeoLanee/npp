@@ -23,11 +23,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEVELOPMENT = os.environ.get('DEVELOPMENT', 'false').lower() == 'true'
-DOMAIN = os.environ.get('DOMAIN', '127.0.0.1')
+CORS_DOMAIN = os.environ.get('CORS_DOMAIN', '127.0.0.1')
+HOST_DOMAIN = os.environ.get('HOST_DOMAIN', '127.0.0.1')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 if not DEVELOPMENT:
-    ALLOWED_HOSTS.append(DOMAIN)
+    ALLOWED_HOSTS.append(HOST_DOMAIN)
 
 CORS_ALLOW_CREDENTIALS = True
 if DEVELOPMENT:
@@ -37,8 +38,8 @@ if DEVELOPMENT:
 else:
     DEBUG = False
     CORS_ALLOWED_ORIGINS = [
-        f"http://{DOMAIN}",
-        f"https://{DOMAIN}",
+        f"http://{CORS_DOMAIN}",
+        f"https://{CORS_DOMAIN}",
     ]
 
 AUTH_USER_MODEL = 'students.Student'
