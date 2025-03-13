@@ -81,7 +81,7 @@ class my_profile_view(APIView):
         decoded = JWTAuthentication().authenticate(request);
         student_id, _ = decoded
 
-        serializer = update_user_serializer(data=request.data, partial=True)
+        serializer = update_user_serializer(data=request.data, partial=True, context={'student_id':student_id})
         if serializer.is_valid():
             student = serializer.update(validated_data=serializer.validated_data, student_id=student_id)
             return Response(student, status=200)

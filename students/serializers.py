@@ -39,10 +39,18 @@ class update_user_serializer(serializers.ModelSerializer):
         def validate_message(message: str) -> str:
             return bleach.clean(message)
 
+        student_id = self.context.get('student_id')
+        try:
+            student = Student.objects.get(student_id=student_id)
+        except:
+            raise serializers.ValidationError(
+                {"student": "Something wrong with student"}
+            )
+        
         kakao_id = data.get('kakao_id')
         insta_id = data.get('insta_id')
 
-        if kakao_id:
+        if kakao_id and kakao_id != student.kakao_id:
             if Student.objects.filter(kakao_id=kakao_id).exists():
                 raise serializers.ValidationError(
                     {"kakao_id": "The kakao ID already exists"}
@@ -52,7 +60,7 @@ class update_user_serializer(serializers.ModelSerializer):
                     {"kakao_id": "Invalid kakaotalk ID format"}
                 )
         
-        if insta_id:
+        if insta_id and insta_id != student.insta_id:
             if Student.objects.filter(insta_id=insta_id).exists():
                 raise serializers.ValidationError(
                     {"insta_id": "The instagram ID already exists"}
