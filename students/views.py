@@ -10,6 +10,11 @@ from django.http import HttpRequest
 from .models import Student
 from .serializers import *
 
+from rest_framework.pagination import PageNumberPagination
+
+class UserPagination(PageNumberPagination):
+    page_size = 20
+
 class user_view(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -24,9 +29,22 @@ class user_view(APIView):
             return Response({"error": "senior is not available"}, status=403)
 
         seniors = Student.objects.filter(display=True, major=token['major'], senior=True)
-        serializer = get_user_list_serializer(seniors, many=True)
+        
+        paginator = UserPagination()
+        paginated_data = paginator.paginate_queryset(seniors, request)
+        
+        serializer = get_user_list_serializer(paginated_data, many=True)
 
-        return Response(data=serializer.data, status=200)
+        if paginated_data:
+            return paginator.get_paginated_response(serializer.data)
+        else:
+            return Response({
+                "message": "No more pages available",
+                "count": seniors.count(),
+                "next": None,
+                "previous": None,
+                "results": []
+            })
 
 
 class user_detail_view(APIView):
